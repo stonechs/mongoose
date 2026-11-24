@@ -1,0 +1,103 @@
+{
+  "$schema": "http://cyclonedx.org/schema/bom-1.6.schema.json",
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:d3f8b1e2-4a7c-4d9e-bf2a-1c3e5f7a9b0d",
+  "version": 3,
+  "metadata": {
+    "timestamp": "2026-11-18T00:00:00Z",
+    "component": {
+      "type": "library",
+      "bom-ref": "mongoose",
+      "supplier": { "name": "Cesanta Software Limited", "url": ["https://cesanta.com"] },
+      "author": "Cesanta Software Limited",
+      "name": "mongoose",
+      "version": "7.24",
+      "description": "Two-file C/C++ embedded networking library. HTTP, WebSocket, MQTT, TLS 1.3, OTA firmware updates, device dashboard. Runs on microcontrollers and desktop OS.",
+      "licenses": [
+        { "expression": "GPL-2.0-only" },
+        { "license": { "name": "Cesanta Commercial License", "url": "https://mongoose.ws/licensing/" } }
+      ],
+      "purl": "pkg:github/cesanta/mongoose@7.24",
+      "externalReferences": [
+        { "type": "website",          "url": "https://mongoose.ws" },
+        { "type": "vcs",              "url": "https://github.com/cesanta/mongoose" },
+        { "type": "issue-tracker",    "url": "https://github.com/cesanta/mongoose/issues" },
+        { "type": "security-contact", "url": "https://mongoose.ws/support/" },
+        { "type": "distribution",     "url": "https://raw.githubusercontent.com/cesanta/mongoose/master/mongoose.c" }
+      ],
+      "properties": [
+        { "name": "cpe", "value": "cpe:2.3:a:cesanta:mongoose:7.24:*:*:*:*:*:*:*" }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "bearssl-ec",
+      "author": "Thomas Pornin",
+      "name": "BearSSL EC (P-256, P-384, ECDSA)",
+      "description": "P-256 (ec_p256_m31) and P-384 (ec_prime_i31) elliptic curve arithmetic, ECDSA sign and verify, and the i31 bignum code they use, derived from BearSSL. Used by Mongoose built-in TLS 1.3 for ECDHE key exchange and ECDSA signatures, by JWT ES256 and by OTA firmware signature verification. Source: src/tls_p256.c, src/tls_p256.h, src/tls_p384.c, src/tls_p384.h.",
+      "licenses": [ { "expression": "MIT" } ],
+      "externalReferences": [
+        { "type": "website", "url": "https://bearssl.org" }
+      ],
+      "properties": [
+        { "name": "upstream-commit", "value": "7bea48e5e850ab4cafbe68d3765cdaba13a86d6f" }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "p256-cortex-m4",
+      "author": "Emil Lenngren, Shortcut Labs AB",
+      "name": "P256-Cortex-M4",
+      "description": "P-256 ECDH and ECDSA in Cortex-M assembly. Used by Mongoose built-in TLS 1.3 instead of the BearSSL P-256 code on Cortex-M cores with the DSP extension (M4, M7, M33, M55, M85). Source: src/tls_p256_cortex.c.",
+      "licenses": [ { "expression": "MIT" } ],
+      "purl": "pkg:github/Emill/P256-Cortex-M4@ecd3ec2222fc9e18b6b44c86bb7183971a2041fc",
+      "externalReferences": [
+        { "type": "vcs", "url": "https://github.com/Emill/P256-Cortex-M4" }
+      ],
+      "properties": [
+        { "name": "upstream-commit", "value": "ecd3ec2222fc9e18b6b44c86bb7183971a2041fc" }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "bearsslrsa",
+      "author": "Thomas Pornin",
+      "name": "BearSSL RSA (i31 backend)",
+      "description": "RSA bigint arithmetic derived from BearSSL's i31 backend. Used by Mongoose built-in TLS 1.3 for RSA certificate parsing and verification. Source: src/tls_rsa.c.",
+      "licenses": [ { "expression": "MIT" } ],
+      "externalReferences": [
+        { "type": "website", "url": "https://bearssl.org" }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "sha1-reid",
+      "author": "Steve Reid",
+      "name": "SHA-1",
+      "description": "Public domain SHA-1 implementation. Used by Mongoose for WebSocket handshake (RFC 6455). Source: src/sha1.c.",
+      "licenses": [ { "expression": "LicenseRef-PublicDomain" } ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "sha256-conte",
+      "author": "Brad Conte",
+      "name": "SHA-256 (crypto-algorithms)",
+      "description": "Public domain SHA-256 implementation. Used by Mongoose for TLS certificate hashing and MQTT. Source: src/sha256.c.",
+      "licenses": [ { "expression": "LicenseRef-PublicDomain" } ],
+      "externalReferences": [
+        { "type": "vcs", "url": "https://github.com/B-Con/crypto-algorithms" }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "md5-plumb",
+      "author": "Colin Plumb",
+      "name": "MD5",
+      "description": "Public domain MD5 implementation (no copyright claimed). Used by Mongoose for HTTP Digest authentication. Source: src/md5.c.",
+      "licenses": [ { "expression": "LicenseRef-PublicDomain" } ]
+    }
+  ]
+}

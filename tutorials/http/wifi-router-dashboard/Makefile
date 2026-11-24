@@ -1,0 +1,42 @@
+REPO_ROOT ?= ../../..
+
+PROG ?= ./example                 # Program we are building
+DELETE = rm -rf                   # Command to remove files
+OUT ?= -o $(PROG)                 # Compiler argument for output file
+SOURCES = main.c $(REPO_ROOT)/mongoose.c net.c packed_fs.c # Source code files
+CFLAGS = -I$(REPO_ROOT) -W -Wall -Wextra -g -I.  # Build options
+
+# Mongoose build options. See https://mongoose.ws/docs/getting-started/build-environment/
+# CFLAGS_MONGOOSE += 
+
+ifeq ($(OS),Windows_NT)         # Windows settings. Assume MinGW compiler. To use VC: make CC=cl CFLAGS=/MD OUT=/Feprog.exe
+  PROG = example.exe            # Use .exe suffix for the binary
+  CC = gcc                      # Use MinGW gcc compiler
+  CFLAGS += -lws2_32            # Link against Winsock library
+  DELETE = cmd /C del /Q /F /S  # Command prompt command to delete files
+  OUT ?= -o $(PROG)             # Build output
+endif
+
+all: $(PROG)              # Default target. Build and run program
+	$(RUN) $(PROG) $(ARGS)
+
+web_root/bundle.js: ../device-dashboard/web_root/bundle.js
+	cp $< $@
+
+web_root/components.js: ../device-dashboard/web_root/components.js
+	cp $< $@
+
+web_root/history.min.js: ../device-dashboard/web_root/history.min.js
+	cp $< $@
+
+web_root/index.html: ../device-dashboard/web_root/index.html
+	cp $< $@
+
+packed_fs.c: $(wildcard web_root/*) Makefile ../../../test/pack.js web_root/bundle.js web_root/components.js web_root/history.min.js web_root/index.html
+	node ../../../test/pack.js $(addsuffix ::gzip, $(wildcard web_root/*)) > $@
+
+$(PROG): $(SOURCES)       # Build program from sources
+	$(CC) $(SOURCES) $(CFLAGS) $(CFLAGS_MONGOOSE) $(CFLAGS_EXTRA) $(OUT)
+
+clean:                    # Cleanup. Delete built program and all build artifacts
+	$(DELETE) $(PROG) $(PACK) *.o *.obj *.exe *.dSYM web_root/bundle.js web_root/components.js web_root/history.min.js web_root/index.html
