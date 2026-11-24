@@ -9,7 +9,7 @@
 #ifndef HTTP_PORT
 #define HTTP_PORT 8000
 #endif
-#define APP_VERSION L"V0.0.1"
+#define APP_VERSION L"V0.0.2"
 
 #define WM_TRAY (WM_APP + 1)
 #define ID_QUIT 100
@@ -194,6 +194,7 @@ static void manage_service(UINT command) {
 
 static INT_PTR CALLBACK settings_proc(HWND dlg, UINT msg, WPARAM wp, LPARAM lp) {
   (void) lp;
+  if (msg == WM_CLOSE) { EndDialog(dlg, IDCANCEL); return TRUE; }
   if (msg == WM_INITDIALOG) {
     SetDlgItemInt(dlg, ID_PORT, s_settings.port, FALSE);
     SetDlgItemTextW(dlg, ID_ROOT, s_root_w);

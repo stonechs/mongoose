@@ -11,7 +11,7 @@ an independent Git repository and is excluded from this repository's history.
 
 ## Current state
 
-Project version: **V0.0.1**. Increment the patch component by `0.0.1` for each
+Project version: **V0.0.2**. Increment the patch component by `0.0.1` for each
 code change; successful changes are recorded in local Git commits and matching
 version tags.
 
@@ -21,6 +21,8 @@ and current work status.
 For a Chinese overview of Mongoose's architecture, features, platform choices,
 and compile-time feature trimming, see
 [docs/mongoose_design_analysis_zh.md](docs/mongoose_design_analysis_zh.md).
+The linked CRT/library code in the three x86 executables is analyzed in
+[docs/x86_static_link_analysis.md](docs/x86_static_link_analysis.md).
 
 ## Build and run on Windows
 

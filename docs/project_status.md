@@ -1,7 +1,7 @@
 # Project status
 
 Updated: 2026-11-24
-Project version: V0.0.1
+Project version: V0.0.2
 
 ## Baseline
 
@@ -151,7 +151,7 @@ Project version: V0.0.1
 
 ## Versioning
 
-- Current project version: V0.0.1. The tray menu displays this application
+- Current project version: V0.0.2. The tray menu displays this application
   version; increment the patch component by 0.0.1 for each code change.
 - After a code change builds and its applicable runtime checks pass, record it
   in a local Git commit and create the matching version tag.
@@ -161,3 +161,17 @@ Project version: V0.0.1
   was stopped with port 8000 clear afterward.
 - V0.0.1 builds: GCC x86 (75,776 B), Clang x86 (55,296 B), and Crinkler x86
   (22,413 B). No x64 or Tiny outputs were generated for this version.
+
+## V0.0.2 update (2026-11-24)
+
+- The settings dialog now explicitly handles `WM_CLOSE` with `EndDialog`, so
+  its title-bar X closes it. Dialog width was reduced from 400 to 200 dialog
+  units and controls were rearranged to fit.
+- A hidden-desktop test opened the actual dialog resource, sent `SC_CLOSE`, and
+  confirmed `DialogBoxParamW` returned `IDCANCEL` without showing the window.
+- Rebuilt only the GCC x86, Clang x86, and regular Crinkler x86 outputs. Sizes:
+  75,776 B, 55,296 B, and 22,144 B respectively. No x64 or Tiny output was
+  generated. Each final dist EXE returned HTTP 200 for `/` and `/files/`, the
+  page title and `readme.txt` were checked, and every test process was stopped.
+- Added [x86_static_link_analysis.md](x86_static_link_analysis.md), based on
+  current x86 linker maps, the Crinkler report, and PE import inspection.
