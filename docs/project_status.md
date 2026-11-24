@@ -12,6 +12,9 @@ Project version: V0.0.4
 
 ## Current work
 
+- Official delivery set: Clang x86, Clang x86 Crinkler, and Clang x64 only.
+  The policy is recorded in [decisions.md](decisions.md) and reflected in the
+  README build instructions.
 - Copied the Mongoose core (`mongoose.c`, `mongoose.h`) into `src/`.
 - Replaced the tutorial application in `src/main.c` with a minimal IPv4 static
   file server using the executable's directory as its document root,
@@ -21,7 +24,8 @@ Project version: V0.0.4
 - Configured `Script/build.ps1` to disable IPv6, TLS, SSI, logging, MD5,
   health/Dashboard, OTA, embedded/third-party network stacks, and unused embedded
   filesystems; it uses size optimization, LTO, and linker dead-code removal.
-- The build outputs a stripped `dist/http-server.exe`.
+- The original GCC build script remains for maintenance; GCC output is no
+  longer part of the official delivery set.
 - Added `Script/build-clang.ps1` for Clang `-Oz` x64/x86 builds and
   `Script/build-crinkler.ps1` for compressed x86 variants.
 - Added `docs/mongoose_design_analysis_zh.md`, analyzing Mongoose 7.24 design,
@@ -220,3 +224,15 @@ Project version: V0.0.4
   its `dist` directory). `/` and `/files/` returned HTTP 200; the homepage
   title and `readme.txt` listing were verified. The test process was stopped
   and port 8000 was confirmed clear. No x64 or Tiny output was built.
+
+## Three-artifact rebuild (2026-11-24)
+
+- Rebuilt only the official delivery set: Clang x86 (49,664 B), Crinkler x86
+  (22,145 B), and Clang x64 (64,000 B). PE inspection identified i386, i386,
+  and x86-64 respectively.
+- Independently launched each EXE from `C:\Windows\Temp`. For every artifact,
+  `/` and `/files/` returned HTTP 200; the homepage title and `readme.txt`
+  listing were checked. Test processes were stopped and port 8000 was clear.
+- The Crinkler link log records a 1 MB hash table and both Tiny options disabled.
+- The three executables remain ignored build outputs under `dist/`; no GCC,
+  LTO, or Tiny artifact was built.
