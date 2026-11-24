@@ -211,3 +211,12 @@ Project version: V0.0.4
   stopped the server and confirmed port 8000 was clear.
 - No x64 or Tiny artifact was rebuilt. Tray interaction and Windows service
   installation were not re-tested in this build.
+- Built the standard Crinkler x86 output with
+  `Script/build-crinkler.ps1`; `dist/http-server-crinkler-x86.exe` is 22,145 B
+  (PE32/i386). The complete linker log records a 1 MB hash table, with both
+  Tiny compressor and Tiny import disabled. Crinkler emitted one forwarded
+  `DefWindowProcW` warning and replaced it with `NtdllDefWindowProc_W`.
+- Headless checks launched the standard output from the repository root (not
+  its `dist` directory). `/` and `/files/` returned HTTP 200; the homepage
+  title and `readme.txt` listing were verified. The test process was stopped
+  and port 8000 was confirmed clear. No x64 or Tiny output was built.
