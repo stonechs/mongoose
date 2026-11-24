@@ -1,7 +1,7 @@
 # Project status
 
 Updated: 2026-11-24
-Project version: V0.0.2
+Project version: V0.0.3
 
 ## Baseline
 
@@ -175,3 +175,21 @@ Project version: V0.0.2
   page title and `readme.txt` were checked, and every test process was stopped.
 - Added [x86_static_link_analysis.md](x86_static_link_analysis.md), based on
   current x86 linker maps, the Crinkler report, and PE import inspection.
+
+## V0.0.3 update (2026-11-24)
+
+- Changed only the Clang x86 build to target MinGW GNU ABI and link the dynamic
+  `msvcrt.dll` import library (`libmsvcrt-os.a`). No CRT implementation is
+  statically linked. Clang x64 keeps its existing MSVC/UCRT configuration.
+- The x86 executable imports the seven available memory/string functions from
+  `msvcrt.dll` and no longer imports `VCRUNTIME140.dll` or UCRT API Set DLLs.
+- The output is 66,048 B (previous MSVC-target Clang x86 was 55,296 B). It is
+  PE32/i386, has no base-relocation directory or `.reloc` section, and imports
+  the expected Windows system DLLs.
+- Built only `dist/http-server-clang-x86.exe`. Background runtime check kept
+  the process alive, returned HTTP 200 for `/` and `/files/`, confirmed the
+  homepage title and `readme.txt`, then stopped the process and confirmed port
+  8000 had no remaining listener.
+- LLVM LTO is not available for this GNU-target build with the installed linker;
+  the build script now reports this if x86 LTO is requested. No x64 or Tiny
+  outputs were rebuilt.

@@ -12,7 +12,8 @@ PE32 构建；不分析 x64。
 | 构建 | CRT / 静态库情况 | 主要静态链接内容 |
 | --- | --- | --- |
 | GCC x86 | UCRT 函数通过 API Set DLL 导入；另有 MinGW 启动代码和 libgcc | `libmingw32.a` 的启动、TLS、异常处理和伪重定位支持；`libgcc.a` 的栈探测和 64 位除法帮助函数；少量 UCRT 导入适配器 |
-| Clang x86 | 由 `-fms-runtime-lib=dll` 使用动态 VCRUNTIME/UCRT | Windows CRT 启动和异常处理所需的少量 glue/stub；常用 CRT 函数实现从 `VCRUNTIME140.dll` 和 UCRT API Set 导入 |
+| Clang x86 V0.0.2 | 由 `-fms-runtime-lib=dll` 使用动态 VCRUNTIME/UCRT | Windows CRT 启动和异常处理所需的少量 glue/stub；常用 CRT 函数实现从 `VCRUNTIME140.dll` 和 UCRT API Set 导入 |
+| Clang x86 V0.0.3 | MinGW GNU ABI 启动代码；CRT 函数从动态 `msvcrt.dll` 导入 | MinGW CRT startup glue；`memchr`、`memcmp`、`memcpy`、`memmove`、`memset`、`strchr`、`wcsrchr` 均由 `msvcrt.dll` 提供，不导入 VCRUNTIME/UCRT |
 | Crinkler x86 | `/MT` 链入静态 `libcmt.lib`；Windows API 由 Crinkler 的压缩导入机制解析 | 报告中从 `libcmt.lib` 实际选入的公开函数为 `__aulldiv`，未压入完整 CRT 启动流程 |
 
 ## GCC x86
@@ -36,16 +37,22 @@ DLL 导入。`libkernel32.a`、`libuser32.a`、`libws2_32.a`、`libshell32.a`、
 
 ## Clang x86
 
-`lld-link` 映射列出 `_WinMainCRTStartup`、`__scrt_*` 初始化、TLS、SEH、
+V0.0.2 的 `lld-link` 映射列出 `_WinMainCRTStartup`、`__scrt_*` 初始化、TLS、SEH、
 安全 cookie 检查等 CRT 启动/异常处理 glue。映射中的具体符号包括
 `___scrt_initialize_crt`、`___scrt_initialize_onexit_tables`、
 `___scrt_get_dyn_tls_init_callback`、`___scrt_set_unhandled_exception_filter`、
 `__SEH_prolog4`、`__except_handler4`、`@__security_check_cookie@4` 和
 `___report_gsfailure`。它们体积有限；CRT 函数实现没有整体静态链接。
-`memcmp`、`memcpy`、`memmove`、`memset`、`memchr` 等来自
+在 V0.0.2 中，`memcmp`、`memcpy`、`memmove`、`memset`、`memchr` 等来自
 `VCRUNTIME140.dll`；stdio、heap、string、filesystem、runtime 等函数从
 `api-ms-win-crt-*.dll` 导入。Windows API 则从 `KERNEL32.dll`、`USER32.dll`、
 `SHELL32.dll`、`ADVAPI32.dll` 和 `WS2_32.dll` 导入。
+
+V0.0.3 将 Clang x86 改为 `i686-w64-windows-gnu` 目标，并显式链接 WinLibs
+的 `libmsvcrt-os.a` 导入库。导入检查确认 CRT 函数来自系统的动态
+`msvcrt.dll`，不含 `VCRUNTIME140.dll` 或 UCRT API Set DLL。该构建仍有 MinGW
+启动代码，并非静态 CRT；Windows API 仍由对应系统 DLL 提供。PE 为固定基址，
+没有 `.reloc` 节或基址重定位目录。最终 EXE 为 66,048 B。
 
 ## Crinkler x86
 
@@ -56,8 +63,9 @@ Crinkler `/REPORT` 中唯一列出的 `LIBCMT.LIB` 公开函数是 `__aulldiv`�
 
 ## 证据和边界
 
-- GCC：`work/gcc-x86-v002.map`，由当前 x86 参数生成的链接映射。
-- Clang：`work/clang-x86-v002.map`，当前源码的 x86 `/MAP` 链接映射。
+- GCC：`work/gcc-x86-v002.map`，由 x86 参数生成的链接映射。
+- Clang V0.0.2：`work/clang-x86-v002.map`，MSVC-target x86 `/MAP` 链接映射。
+- Clang V0.0.3：`dist/http-server-clang-x86.exe` 的 PE 导入表和节表检查。
 - Crinkler：`work/crinkler-x86-v002.html`，当前 x86 `/REPORT`。
 - GCC/Clang 的 DLL 导入由 `dumpbin /imports` 交叉检查。Crinkler 的函数来源
   根据其压缩链接报告判断。

@@ -9,7 +9,7 @@
 #ifndef HTTP_PORT
 #define HTTP_PORT 8000
 #endif
-#define APP_VERSION L"V0.0.2"
+#define APP_VERSION L"V0.0.3"
 
 #define WM_TRAY (WM_APP + 1)
 #define ID_QUIT 100
