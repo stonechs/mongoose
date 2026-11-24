@@ -9,7 +9,7 @@
 #ifndef HTTP_PORT
 #define HTTP_PORT 8000
 #endif
-#define APP_VERSION L"V0.0.3"
+#define APP_VERSION L"V0.0.4"
 
 #define WM_TRAY (WM_APP + 1)
 #define ID_QUIT 100
@@ -400,6 +400,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE previous, LPSTR command_line, i
   (void) instance; (void) previous; (void) command_line; (void) show;
   return app_entry();
 }
+
+#if defined(MG_CUSTOM_ENTRY)
+__declspec(noreturn) void WINAPI MongooseEntry(void) {
+  ExitProcess((UINT) app_entry());
+}
+#endif
 
 #if defined(MG_CRINKLER)
 void CrinklerEntry(void) {

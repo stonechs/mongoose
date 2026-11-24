@@ -1,7 +1,7 @@
 # Project status
 
 Updated: 2026-11-24
-Project version: V0.0.3
+Project version: V0.0.4
 
 ## Baseline
 
@@ -193,3 +193,21 @@ Project version: V0.0.3
 - LLVM LTO is not available for this GNU-target build with the installed linker;
   the build script now reports this if x86 LTO is requested. No x64 or Tiny
   outputs were rebuilt.
+
+## V0.0.4 update (2026-11-24)
+
+- Restored the Clang x86 MSVC target and added the custom `MongooseEntry`
+  startup. The linker uses `/NODEFAULTLIB` and `/ENTRY:MongooseEntry@0`, so it
+  bypasses both MSVC and MinGW CRT startup code.
+- Added a small x86 import definition for C functions used by the server;
+  `lib.exe` builds an import library that directs them to dynamic `msvcrt.dll`.
+  The import table has no `VCRUNTIME140.dll` or UCRT API Set.
+- The linker map contains no CRT startup entry, MSVC exception helpers, or
+  MinGW pseudo-relocator. It retains only small compiler-support members from
+  `msvcrt.lib`, including `__aulldiv` and `_fltused`; this is not a static CRT.
+- Built only `dist/http-server-clang-x86.exe` (49,664 B). It is PE32/i386 with
+  the base-relocation table removed. Background runtime testing returned HTTP
+  200 for `/` and `/files/`, checked the homepage title and `readme.txt`, then
+  stopped the server and confirmed port 8000 was clear.
+- No x64 or Tiny artifact was rebuilt. Tray interaction and Windows service
+  installation were not re-tested in this build.

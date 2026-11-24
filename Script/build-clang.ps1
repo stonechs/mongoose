@@ -10,7 +10,7 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $sourceDir = Join-Path $projectRoot 'src'
 $outputDir = Join-Path $projectRoot 'dist'
 $objectDir = Join-Path $projectRoot "build\clang-$Architecture"
-$target = if ($Architecture -eq 'x64') { 'x86_64-pc-windows-msvc' } else { 'i686-w64-windows-gnu' }
+$target = if ($Architecture -eq 'x64') { 'x86_64-pc-windows-msvc' } else { 'i686-pc-windows-msvc' }
 $outputName = if ($LinkTimeOptimization) {
     if ($Architecture -eq 'x64') { 'http-server-clang-lto.exe' } else { 'http-server-clang-x86-lto.exe' }
 } elseif ($Architecture -eq 'x64') {
@@ -20,10 +20,6 @@ $outputName = if ($LinkTimeOptimization) {
 }
 $outputFile = Join-Path $outputDir $outputName
 $compiler = Get-Command clang -ErrorAction Stop
-
-if ($Architecture -eq 'x86' -and $LinkTimeOptimization) {
-    throw 'Clang x86 uses the GNU target to link the dynamic msvcrt.dll runtime; the installed linker does not support LLVM LTO for this target.'
-}
 
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 New-Item -ItemType Directory -Path $objectDir -Force | Out-Null
@@ -54,6 +50,13 @@ $arguments = @(
     '-DMG_ENABLE_POSIX_FS=1'
     '-DMG_TLS=MG_TLS_NONE'
     '-DMG_OTA=MG_OTA_NONE'
+)
+
+if ($Architecture -eq 'x86') {
+    $arguments += '-DMG_CUSTOM_ENTRY=1'
+}
+
+$arguments += @(
     "-I$sourceDir"
     (Join-Path $sourceDir 'main.c')
     (Join-Path $sourceDir 'mongoose.c')
@@ -63,24 +66,28 @@ $arguments = @(
 )
 
 if ($Architecture -eq 'x86') {
-    $toolchainRoot = 'D:\tools\winlibs-i686\toolchain\mingw32'
-    $toolchainBin = Join-Path $toolchainRoot 'bin'
-    $i686Compiler = Join-Path $toolchainBin 'gcc.exe'
-    if (-not (Test-Path $i686Compiler)) {
-        throw "i686 WinLibs toolchain not found: $toolchainRoot"
-    }
+    $libraryManager = Get-Command lib.exe -ErrorAction Stop
+    $hostBin = Split-Path -Parent $libraryManager.Source
+    $vcRoot = Split-Path -Parent (Split-Path -Parent (Split-Path -Parent $hostBin))
+    $crtLibrary = Join-Path $vcRoot 'lib\x86\msvcrt.lib'
+    if (-not (Test-Path $crtLibrary)) { throw "MSVC x86 CRT helpers not found: $crtLibrary" }
+    $msvcrtImportLibrary = Join-Path $objectDir 'legacy-msvcrt.lib'
+    & $libraryManager.Source "/def:$(Join-Path $sourceDir 'msvcrt-x86.def')" '/machine:x86' "/out:$msvcrtImportLibrary"
+    if ($LASTEXITCODE -ne 0) { throw "lib.exe failed with exit code $LASTEXITCODE" }
+
     $arguments += @(
-        "--sysroot=$toolchainRoot"
-        '-B'
-        $toolchainBin
-        '-fno-asynchronous-unwind-tables'
-        '-fno-unwind-tables'
-        '-mwindows'
-        '-Wl,--gc-sections'
-        '-Wl,--disable-dynamicbase'
-        '-Wl,--disable-reloc-section'
-        '-Wl,--strip-all'
-        '-lmsvcrt-os'
+        '-nostdlib'
+        '-Wl,/NODEFAULTLIB'
+        '-Wl,/ENTRY:MongooseEntry@0'
+        '-Wl,/SUBSYSTEM:WINDOWS'
+        '-Wl,/SAFESEH:NO'
+        '-Wl,/FIXED'
+        '-Wl,/OPT:REF'
+        '-Wl,/OPT:ICF'
+        "-Wl,/MAP:$(Join-Path $objectDir 'http-server.map')"
+        $msvcrtImportLibrary
+        $crtLibrary
+        '-lkernel32'
         '-lws2_32'
         '-luser32'
         '-lshell32'
@@ -101,6 +108,10 @@ if ($Architecture -eq 'x86') {
     if ($LinkTimeOptimization) {
         $arguments += @('-flto', '-fuse-ld=lld')
     }
+}
+
+if ($LinkTimeOptimization -and $Architecture -eq 'x86') {
+    $arguments += @('-flto', '-fuse-ld=lld')
 }
 
 & $compiler.Source @arguments

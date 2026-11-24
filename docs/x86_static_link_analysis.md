@@ -14,6 +14,7 @@ PE32 构建；不分析 x64。
 | GCC x86 | UCRT 函数通过 API Set DLL 导入；另有 MinGW 启动代码和 libgcc | `libmingw32.a` 的启动、TLS、异常处理和伪重定位支持；`libgcc.a` 的栈探测和 64 位除法帮助函数；少量 UCRT 导入适配器 |
 | Clang x86 V0.0.2 | 由 `-fms-runtime-lib=dll` 使用动态 VCRUNTIME/UCRT | Windows CRT 启动和异常处理所需的少量 glue/stub；常用 CRT 函数实现从 `VCRUNTIME140.dll` 和 UCRT API Set 导入 |
 | Clang x86 V0.0.3 | MinGW GNU ABI 启动代码；CRT 函数从动态 `msvcrt.dll` 导入 | MinGW CRT startup glue；`memchr`、`memcmp`、`memcpy`、`memmove`、`memset`、`strchr`、`wcsrchr` 均由 `msvcrt.dll` 提供，不导入 VCRUNTIME/UCRT |
+| Clang x86 V0.0.4 | MSVC ABI，自定义入口；C 函数从动态 `msvcrt.dll` 导入 | 少量编译器辅助成员，如 `__aulldiv`、`_fltused` 和 CFG/security-cookie 支持；无 CRT startup、无 VCRUNTIME/UCRT，也无 MinGW 伪重定位 |
 | Crinkler x86 | `/MT` 链入静态 `libcmt.lib`；Windows API 由 Crinkler 的压缩导入机制解析 | 报告中从 `libcmt.lib` 实际选入的公开函数为 `__aulldiv`，未压入完整 CRT 启动流程 |
 
 ## GCC x86
@@ -54,6 +55,15 @@ V0.0.3 将 Clang x86 改为 `i686-w64-windows-gnu` 目标，并显式链接 WinL
 启动代码，并非静态 CRT；Windows API 仍由对应系统 DLL 提供。PE 为固定基址，
 没有 `.reloc` 节或基址重定位目录。最终 EXE 为 66,048 B。
 
+V0.0.4 保留 `i686-pc-windows-msvc` 目标，但用 `/NODEFAULTLIB` 和自定义
+`MongooseEntry@0` 直接进入应用逻辑。`src/msvcrt-x86.def` 为所需的 C 函数生成
+MSVC 格式导入库，函数实现仍由系统 `msvcrt.dll` 提供。链接映射中没有
+`WinMainCRTStartup`、`__scrt_*`、`__current_exception*`、
+`_except_handler4_common` 或 MinGW `_pei386_runtime_relocator`。MSVC `msvcrt.lib`
+只贡献编译器辅助成员，包括 112 字节的 `__aulldiv`、`_fltused` 标记，以及
+少量 CFG/security-cookie 支持；没有静态链接整套 CRT。PE 基址重定位目录为零，
+产物为 49,664 B。
+
 ## Crinkler x86
 
 Crinkler `/REPORT` 中唯一列出的 `LIBCMT.LIB` 公开函数是 `__aulldiv`：未压缩
@@ -66,6 +76,7 @@ Crinkler `/REPORT` 中唯一列出的 `LIBCMT.LIB` 公开函数是 `__aulldiv`�
 - GCC：`work/gcc-x86-v002.map`，由 x86 参数生成的链接映射。
 - Clang V0.0.2：`work/clang-x86-v002.map`，MSVC-target x86 `/MAP` 链接映射。
 - Clang V0.0.3：`dist/http-server-clang-x86.exe` 的 PE 导入表和节表检查。
+- Clang V0.0.4：`build/clang-x86/http-server.map` 和最终 PE 导入表检查。
 - Crinkler：`work/crinkler-x86-v002.html`，当前 x86 `/REPORT`。
 - GCC/Clang 的 DLL 导入由 `dumpbin /imports` 交叉检查。Crinkler 的函数来源
   根据其压缩链接报告判断。
