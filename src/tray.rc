@@ -1,0 +1,30 @@
+/* Tray icon from Mongoose desktop server, Copyright (c) 2004-2013 Sergey Lyubka, MIT License. */
+#include <windows.h>
+#define ID_PORT 200
+#define ID_ROOT 201
+#define ID_LISTING 202
+#define ID_SAVE 203
+#define ID_RESET 204
+#define ID_GROUP 205
+#define IDD_SETTINGS 300
+
+#ifndef MG_CRINKLER
+100 ICON DISCARDABLE "systray.ico"
+#endif
+
+IDD_SETTINGS DIALOGEX 200, 200, 400, 112
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_DLGFRAME
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Mongoose settings"
+FONT 8, "Tahoma"
+BEGIN
+  GROUPBOX        " Settings ", ID_GROUP, 5, 5, 390, 75
+  LTEXT           "Web root", -1, 10, 20, 80, 15
+  EDITTEXT        ID_ROOT, 90, 20, 300, 14, ES_READONLY | ES_AUTOHSCROLL | WS_BORDER
+  LTEXT           "Listening port", -1, 10, 40, 80, 15
+  EDITTEXT        ID_PORT, 90, 40, 80, 14, ES_NUMBER | ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP
+  CONTROL         "Enable directory listing", ID_LISTING, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 10, 60, 180, 15
+  LTEXT           "Mongoose web server", -1, 5, 90, 180, 12, WS_DISABLED
+  PUSHBUTTON      "Reset to defaults", ID_RESET, 250, 88, 65, 16, WS_TABSTOP
+  DEFPUSHBUTTON   "Save Settings", ID_SAVE, 325, 88, 65, 16, WS_TABSTOP
+END

@@ -1,0 +1,12 @@
+# Unmodified upstream clone; keep its own Git history separate.
+/upstream/
+
+# Common build outputs
+/build/
+/dist/
+/work/
+*.obj
+*.o
+*.exe
+*.dll
+*.pdb
