@@ -11,9 +11,8 @@ an independent Git repository and is excluded from this repository's history.
 
 ## Current state
 
-Project version: **V0.0.4**. Increment the patch component by `0.0.1` for each
-code change; successful changes are recorded in local Git commits and matching
-version tags.
+Project version: **V1.0**. Future patch releases increment by `0.0.1`; record
+each code change in a local Git commit and matching version tag.
 
 See [docs/project_status.md](docs/project_status.md) for the checkout baseline
 and current work status.

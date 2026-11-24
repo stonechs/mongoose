@@ -1,7 +1,7 @@
 # Project status
 
 Updated: 2026-11-24
-Project version: V0.0.4
+Project version: V1.0
 
 ## Baseline
 
@@ -236,3 +236,15 @@ Project version: V0.0.4
 - The Crinkler link log records a 1 MB hash table and both Tiny options disabled.
 - The three executables remain ignored build outputs under `dist/`; no GCC,
   LTO, or Tiny artifact was built.
+
+## V1.0 release (2026-11-24)
+
+- Set the tray application version to V1.0 and rebuilt the three official
+  deliverables. All three passed independent headless HTTP checks for `/` and
+  `/files/` from a working directory outside `dist/`.
+- Release asset sizes: Clang x86 49,664 B; Crinkler x86 22,153 B; Clang x64
+  64,000 B. SHA-256 values and usage notes are recorded in
+  [releases/V1.0.md](releases/V1.0.md).
+- Crinkler used a 1 MB hash table, with Tiny compressor and Tiny import off.
+- The release contains the three EXEs; `index.html` and `files/` remain beside
+  the EXE at runtime and are available in the tagged source tree under `web_root/`.
